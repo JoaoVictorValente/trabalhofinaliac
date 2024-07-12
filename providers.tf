@@ -1,6 +1,5 @@
 terraform {
   required_version = ">=0.12"
-
   required_providers {
     azapi = {
       source  = "azure/azapi"
@@ -15,16 +14,17 @@ terraform {
       version = "~>3.0"
     }
   }
+
+  backend "azurerm" {
+    resource_group_name  = "teste"
+    storage_account_name = "aulaterraformstate"
+    container_name       = "tfstate"
+    key                  = "terraform.tfstate"
+  }
 }
 
 provider "azurerm" {
-  
-  features {
-    
-  }
 
-  subscription_id   = "insira aqui"
-  tenant_id         = "insira aqui"
-  client_id         = "insira aqui"
-  client_secret     = "insira aqui"
+  features {}
+
 }
