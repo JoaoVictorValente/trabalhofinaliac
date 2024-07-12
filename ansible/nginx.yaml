@@ -1,0 +1,22 @@
+- hosts: myhosts
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: atualiza cache
+      apt: update_cache=yes
+
+    - name: instala Nginx
+      apt: name=nginx state=latest
+
+      notify:
+        - reinicia nginx
+
+    - name: Cria arquivo "index.html" com conteudo template
+      template:
+        src: "nginx.html.j2"
+        dest: /var/www/html/index.html
+        mode: 0644
+
+  handlers:
+    - name: reinicia nginx
+      service: name=nginx state=reloaded

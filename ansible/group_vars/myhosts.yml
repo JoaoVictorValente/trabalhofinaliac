@@ -1,2 +1,4 @@
 ---
-ansible_user: azuretest
+ansible_user: azureadmin
+idioma: pt_BR
+nome_do_curso: IAC

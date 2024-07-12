@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="{{ idioma }}">
+  <head>
+    <meta name="description" content="Uma página de exemplo" />
+    <meta name="keywords" content="exemplo, aula, ansible" />
+    <title>Uma Página de Exemplo</title>
+  </head>
+  <body>
+    <p>
+      Ola colegas da PUC. Bem-Vindo ao curso <strong>{{ nome_do_curso }}.</strong>
+    </p>
+    <p>
+      O nome desta VM: <strong>{{ ansible_hostname }}.</strong>
+    </p>
+    <br />
+    <p>Ultima atualizacao foi {{ ansible_date_time.date }} as {{ ansible_date_time.time }}.</p>
+  </body>
+</html>
