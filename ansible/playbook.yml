@@ -1,0 +1,51 @@
+- name: Playbook de Configuração
+  hosts: all
+  vars:
+    ansible_ssh_private_key_file: /home/azureuser/trabalhoiac/private_key.pem
+    idioma: "português"  # Definindo uma variável 'idioma' com valor padrão
+  tasks:
+    - name: Instalar o pacote nginx no grupo web
+      become: true
+      package:
+        name: nginx
+        state: present
+      when: "'web' in group_names"
+
+    - name: Habilitar e iniciar o serviço nginx no grupo web
+      become: true
+      service:
+        name: nginx
+        state: started
+      when: "'web' in group_names"
+
+    - name: Instalar o pacote postgresql no grupo db
+      become: true
+      package:
+        name: postgresql
+        state: present
+      when: "'db' in group_names"
+
+    - name: Habilitar e iniciar o serviço postgresql no grupo db
+      become: true
+      service:
+        name: postgresql
+        state: started
+      when: "'db' in group_names"
+
+    - name: Criar usuário acmeuser com diretório home
+      become: true
+      user:
+        name: acmeuser
+        shell: /bin/bash
+        create_home: yes
+        password: "{{ 'aulapuc1234' | password_hash('sha512') }}"
+
+    - name: Criar arquivo index.html com hostname no grupo web
+      become: true
+      template:
+        src: index.html.j2
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: '0644'
+      when: "'web' in group_names"
