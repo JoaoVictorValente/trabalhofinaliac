@@ -16,11 +16,8 @@ terraform {
   }
 
   backend "azurerm" {
-<<<<<<< HEAD
-    resource_group_name  = "recursosAula05"
-=======
-    resource_group_name  = "teste"
->>>>>>> 0e3af883e01a1a6ce581744ffaa7bb4f7db32214
+    resource_group_name  = "recursosAula05"  # Choose this line or the one below
+    # resource_group_name  = "teste"  # Uncomment this line if this is the correct value
     storage_account_name = "aulaterraformstate"
     container_name       = "tfstate"
     key                  = "terraform.tfstate"
@@ -28,7 +25,5 @@ terraform {
 }
 
 provider "azurerm" {
-
   features {}
-
 }
