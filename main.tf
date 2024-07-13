@@ -133,7 +133,7 @@ resource "azurerm_linux_virtual_machine" "myVM" {
 
 # Generate Ansible Inventory
 resource "local_file" "hosts_cfg" {
-  content  = templatefile("inventory.tpl", {
+  content = templatefile("inventory.tpl", {
     vms      = azurerm_linux_virtual_machine.myVM
     username = var.username
   })
