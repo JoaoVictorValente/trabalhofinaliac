@@ -50,10 +50,10 @@ jobs:
         run: |
           echo "hosts:" > myhosts
           echo "vars:" >> myhosts
-          echo "    ansible_user: ${username}" >> myhosts
+          echo "    ansible_user: ${{ secrets.ANSIBLE_USERNAME }}" >> myhosts
           echo "" >> myhosts  # Adicionar uma linha em branco entre 'vars' e 'hosts' se necessário
           for vm in $vms; do
-            echo "  ${vm['name' ]}:" >> myhosts
+            echo "  ${vm['name']}:" >> myhosts
             echo "    ansible_host: ${vm['public_ip_address']}" >> myhosts
           done
 
