@@ -24,6 +24,5 @@ variable "number_resources" {
 
 variable "admin_password" {
   description = "Password for the admin user on the virtual machine"
+  default     = "${{ secrets.VM_ADMIN_PASSWORD }}"  # Acesso à variável secreta do GitHub
 }
-
-
