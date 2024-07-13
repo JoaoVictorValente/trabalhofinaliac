@@ -62,7 +62,7 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
       - name: Forçar Desbloqueio do Estado
-        run: terraform force-unlock 70331a1f-e4ba-b50c-b659-6037b2c88063
+        run: echo "yes" | terraform force-unlock 70331a1f-e4ba-b50c-b659-6037b2c88063
         # Substitua '70331a1f-e4ba-b50c-b659-6037b2c88063' pelo seu ID de bloqueio
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
