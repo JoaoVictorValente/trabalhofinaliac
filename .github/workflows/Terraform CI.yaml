@@ -59,8 +59,11 @@ jobs:
       - name: Exibir conteúdo do arquivo myhosts
         run: cat myhosts
 
+      - name: Navegar para o diretório do playbook
+        run: cd trabalhofinaliac/ansible
+
       - name: Executar playbook do Ansible
         run: |
-          ansible-playbook -i myhosts playbook.yml
+          ansible-playbook -i ../../myhosts playbook.yml
         env:
           VM_ADMIN_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
