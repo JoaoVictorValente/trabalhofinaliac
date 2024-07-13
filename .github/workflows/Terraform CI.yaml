@@ -46,22 +46,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ansible
 
-      - name: Gerar arquivo de inventário myhosts
-        run: |
-          echo "hosts:" > myhosts
-          echo "vars:" >> myhosts
-          echo "    ansible_user: ${{ secrets.ANSIBLE_USERNAME }}" >> myhosts
-          echo "" >> myhosts  # Adicionar uma linha em branco entre 'vars' e 'hosts' se necessário
-          for vm in $vms; do
-            echo "  ${vm['name']}:" >> myhosts
-            echo "    ansible_host: ${vm['public_ip_address']}" >> myhosts
-          done
-
-      - name: Exibir conteúdo do arquivo myhosts
-        run: cat myhosts
+      - name: Exibir conteúdo de inventory.ini
+        run: cat ansible/inventory.ini
 
       - name: Executar playbook do Ansible
         run: |
-          ansible-playbook -i myhosts ansible/playbook.yml
+          ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
         env:
           VM_ADMIN_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
