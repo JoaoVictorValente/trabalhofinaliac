@@ -85,5 +85,4 @@ jobs:
           sudo apt update
           sudo apt install -y ansible
 
-      - name: Executar Playbook do Ansible
-        run: ansible-playbook -i localhost, ansible/playbook.yml
+     
