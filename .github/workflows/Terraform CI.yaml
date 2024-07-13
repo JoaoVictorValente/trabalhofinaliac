@@ -37,7 +37,7 @@ jobs:
         with:
           soft_fail: true
 
-      - name: Run tsec
+      - name: Run tfsec
         uses: aquasecurity/tfsec-action@v1.0.0
         with:
           soft_fail: true
@@ -78,3 +78,4 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           VM_ADMIN_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
+
