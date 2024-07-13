@@ -7,7 +7,7 @@ resource "azurerm_resource_group" "rg" {
   name     = random_pet.rg_name.id
 }
 
-# Cria rede vritual
+# Cria rede virtual
 resource "azurerm_virtual_network" "vnet" {
   name                = "aula-vnet"
   address_space       = ["10.0.0.0/16"]
@@ -23,7 +23,7 @@ resource "azurerm_subnet" "subnet" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
-# Cria IPs publicos
+# Cria IPs públicos
 resource "azurerm_public_ip" "myPubIP" {
   count               = var.number_resources
   name                = "myPublicIP-${count.index + 1}"
@@ -91,13 +91,13 @@ resource "azurerm_network_interface_security_group_association" "nicNSG" {
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
-# Cria nome generico para a chave ssh
+# Cria nome genérico para a chave SSH
 resource "random_pet" "ssh_key_name" {
   prefix    = "ssh"
   separator = ""
 }
 
-# gera uma chave publica e uma privada
+# Gera uma chave pública e uma privada
 resource "azapi_resource_action" "ssh_public_key_gen" {
   type        = "Microsoft.Compute/sshPublicKeys@2022-11-01"
   resource_id = azapi_resource.ssh_public_key.id
@@ -107,7 +107,7 @@ resource "azapi_resource_action" "ssh_public_key_gen" {
   response_export_values = ["publicKey", "privateKey"]
 }
 
-# associa o nome da chave criada aleatoriamente com a chave publica
+# Associa o nome da chave criada aleatoriamente com a chave pública
 resource "azapi_resource" "ssh_public_key" {
   type      = "Microsoft.Compute/sshPublicKeys@2022-11-01"
   name      = random_pet.ssh_key_name.id
@@ -115,14 +115,14 @@ resource "azapi_resource" "ssh_public_key" {
   parent_id = azurerm_resource_group.rg.id
 }
 
-# salva a chave publica no diretorio principal
+# Salva a chave privada no diretório principal
 resource "local_file" "private_key" {
   content         = azapi_resource_action.ssh_public_key_gen.output.privateKey
   filename        = "private_key.pem"
   file_permission = "0600"
 }
 
-# Cria a maquina virtual
+# Cria a máquina virtual
 resource "azurerm_linux_virtual_machine" "myVM" {
   count                 = var.number_resources
   name                  = "myVM-${count.index + 1}"
@@ -152,10 +152,12 @@ resource "azurerm_linux_virtual_machine" "myVM" {
     public_key = azapi_resource_action.ssh_public_key_gen.output.publicKey
   }
 
+  admin_password = var.vm_admin_password  # Adicionando a senha da VM
+
   depends_on = [azurerm_network_interface_security_group_association.nicNSG]
 }
 
-# Gerar um inventario das VMs
+# Gerar um inventário das VMs
 resource "local_file" "hosts_cfg" {
   content = templatefile("inventory.tpl",
     {
@@ -165,5 +167,3 @@ resource "local_file" "hosts_cfg" {
   )
   filename = "./ansible/inventory.yml"
 }
-
-
