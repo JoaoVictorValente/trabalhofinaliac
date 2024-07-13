@@ -84,11 +84,13 @@ resource "azurerm_network_interface_security_group_association" "nicNSG" {
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
-# SSH Key Generation
-resource "random_password" "vm_admin_password" {
-  length           = 16
-  special          = true
-  override_special = "_%@"
+# SSH Key Generation (Exemplo básico)
+resource "null_resource" "ssh_key_gen" {
+  provisioner "local-exec" {
+    command = <<EOT
+      ssh-keygen -t rsa -b 4096 -f ./id_rsa -N ''
+    EOT
+  }
 }
 
 # Virtual Machine (VM)
@@ -119,7 +121,7 @@ resource "azurerm_linux_virtual_machine" "myVM" {
 
   admin_ssh_key {
     username   = var.username
-    public_key = azapi_resource_action.ssh_public_key_gen.output.publicKey
+    public_key = file("${path.module}/id_rsa.pub")
   }
 
   depends_on = [azurerm_network_interface_security_group_association.nicNSG]
