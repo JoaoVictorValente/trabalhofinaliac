@@ -1,7 +1,7 @@
 # Resource Group
 resource "azurerm_resource_group" "rg" {
   name     = "student-rg"
-  location = "eastus"
+  location = var.resource_group_location
 }
 
 # Virtual Network
@@ -113,7 +113,7 @@ resource "azurerm_linux_virtual_machine" "myVM" {
 
   computer_name  = "student-vm-${count.index + 1}"
   admin_username = var.username
-  admin_password = var.admin_password  # Usar variável para a senha do admin
+  admin_password = var.admin_password  # Utilize a variável para a senha do admin, se necessário
 
   admin_ssh_key {
     username   = var.username
