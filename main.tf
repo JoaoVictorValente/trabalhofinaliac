@@ -97,6 +97,17 @@ resource "tls_private_key" "ssh_key" {
   rsa_bits  = 4096
 }
 
+# Save SSH Private Key locally
+resource "local_file" "ssh_private_key" {
+  content  = tls_private_key.ssh_key[0].private_key_pem
+  filename = "${path.module}/ssh_key.pem"
+  count    = var.number_resources
+
+  provisioner "local-exec" {
+    command = "chmod 600 ${path.module}/ssh_key.pem"
+  }
+}
+
 # Virtual Machine (VM)
 resource "azurerm_linux_virtual_machine" "myVM" {
   count                 = var.number_resources
@@ -138,4 +149,9 @@ resource "local_file" "hosts_cfg" {
     username = var.username
   })
   filename = "./ansible/inventory.yml"
+}
+
+# Output Public IP
+output "public_ip" {
+  value = azurerm_public_ip.myPubIP[*].ip_address
 }
