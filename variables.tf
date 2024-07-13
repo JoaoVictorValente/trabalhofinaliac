@@ -22,4 +22,8 @@ variable "number_resources" {
   description = "Número de VMs que serão criadas"
 }
 
+variable "admin_password" {
+  description = "Password for the admin user on the virtual machine"
+}
+
 
