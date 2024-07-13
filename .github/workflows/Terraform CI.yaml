@@ -49,10 +49,10 @@ jobs:
       - name: Gerar arquivo de inventário myhosts
         run: |
           echo "hosts:" > myhosts
-          echo "%{ for vm in vms ~}" >> myhosts
-          echo "${vm.name}:" >> myhosts
-          echo "    ansible_host: ${vm.public_ip_address}" >> myhosts
-          echo "%{ endfor ~}" >> myhosts
+          for vm in $vms; do
+            echo "${vm['name']}:" >> myhosts
+            echo "    ansible_host: ${vm['public_ip_address']}" >> myhosts
+          done
           echo "vars:" >> myhosts
           echo "    ansible_user: ${username}" >> myhosts
 
