@@ -2,3 +2,4 @@
 ansible-playbook -i /home/azureuser/trabalhoiac/ansible/inventory.yml /home/azureuser/trabalhoiac/ansible/playbook.yml  
    
  
+ 
