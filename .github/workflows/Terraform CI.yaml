@@ -2,7 +2,8 @@ name: Terraform CI
 
 on:
   push:
-    branches: main
+    branches:
+      - main
 
 jobs:
   lint:
@@ -78,3 +79,11 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           VM_ADMIN_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
+
+      - name: Instalar Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: Executar Playbook do Ansible
+        run: ansible-playbook -i localhost, playbook.yml
