@@ -22,8 +22,4 @@ variable "number_resources" {
   description = "Número de VMs que serão criadas"
 }
 
-variable "vm_admin_password" {
-  type        = string
-  description = "Senha do administrador da VM"
-  sensitive   = true
-}
+
