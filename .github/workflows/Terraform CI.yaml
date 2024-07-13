@@ -61,6 +61,6 @@ jobs:
 
       - name: Executar playbook do Ansible
         run: |
-          ansible-playbook -i myhosts trabalhofinaliac/ansible/playbook.yml
+          ansible-playbook -i myhosts ansible/playbook.yml
         env:
           VM_ADMIN_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
