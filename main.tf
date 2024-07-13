@@ -113,7 +113,7 @@ resource "azurerm_linux_virtual_machine" "myVM" {
 
   computer_name  = "student-vm-${count.index + 1}"
   admin_username = var.username
-  admin_password = var.admin_password  # Utilize a variável para a senha do admin, se necessário
+  admin_password = var.admin_password # Utilize a variável para a senha do admin, se necessário
 
   admin_ssh_key {
     username   = var.username
