@@ -1,5 +1,3 @@
-# Arquivo main.tf
-
 # Declare a variável para a senha do admin
 variable "admin_password" {
   description = "Password for the admin user on the virtual machine"
@@ -133,7 +131,7 @@ resource "azurerm_linux_virtual_machine" "myVM" {
 
 # Generate Ansible Inventory
 resource "local_file" "hosts_cfg" {
-  content = templatefile("inventory.tpl", {
+  content  = templatefile("inventory.tpl", {
     vms      = azurerm_linux_virtual_machine.myVM
     username = var.username
   })
