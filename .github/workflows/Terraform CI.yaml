@@ -53,6 +53,11 @@ jobs:
       - name: Instalar Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Instalar Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
       - name: Rodar Init
         run: terraform init
         env:
@@ -79,3 +84,21 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           VM_ADMIN_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
 
+  ansible:
+    needs: terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Instalar Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: Executar playbook.yml do Ansible
+        run: ansible-playbook playbook.yml
+        vars:
+          ansible_ssh_private_key_file: /home/azureuser/trabalhoiac/private_key.pem
+          idioma: "português"  # Definindo uma variável 'idioma' com valor padrão
