@@ -1,9 +1,3 @@
-# Declare a variável para a senha do admin
-variable "admin_password" {
-  description = "Password for the admin user on the virtual machine"
-  default     = "${{ secrets.VM_ADMIN_PASSWORD }}"  # Acesso à variável secreta do GitHub
-}
-
 # Resource Group
 resource "azurerm_resource_group" "rg" {
   name     = "student-rg"
