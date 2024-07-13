@@ -5,7 +5,7 @@ on:
     branches: main
 
 jobs:
-  terraform-and-ansible:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,7 +15,45 @@ jobs:
       - name: Instalar Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Rodar Init do Terraform
+      - name: Rodar Terraform Format
+        run: terraform fmt -check -diff
+
+      - name: Rodar Linter
+        uses: terraform-linters/setup-tflint@v1
+
+  security:
+    needs: [lint]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          soft_fail: true
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          soft_fail: true
+
+  terraform:
+    needs: [lint, security]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Rodar Init
         run: terraform init
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -23,7 +61,7 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
-      - name: Criar um plano do Terraform
+      - name: Criar um plano
         run: terraform plan
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -32,31 +70,11 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           VM_ADMIN_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
 
-      - name: Aplicar o plano do Terraform
+      - name: Aplicar o plano
         run: terraform apply -auto-approve
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-          VM_ADMIN_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
-
-      - name: Instalar Ansible
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ansible
-
-      - name: Verificar e Exibir Conteúdo do Inventário
-        run: |
-          if [ -f inventory.ini ]; then
-            cat inventory.ini
-          else
-            echo "Arquivo de inventário não encontrado!"
-            exit 1
-          fi
-
-      - name: Executar playbook do Ansible
-        run: |
-          ansible-playbook -i inventory.ini ansible/playbook.yml
-        env:
           VM_ADMIN_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
