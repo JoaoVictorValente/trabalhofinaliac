@@ -1,42 +1,42 @@
-resource "random_pet" "rg_name" {
-  prefix = var.resource_group_name_prefix
-}
+# Arquivo main.tf
 
+# Resource Group
 resource "azurerm_resource_group" "rg" {
-  location = var.resource_group_location
-  name     = random_pet.rg_name.id
+  name     = "student-rg"
+  location = "eastus"
 }
 
-# Cria rede virtual
+# Virtual Network
 resource "azurerm_virtual_network" "vnet" {
-  name                = "aula-vnet"
+  name                = "student-vnet"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 }
 
-# Cria subnets
+# Subnet
 resource "azurerm_subnet" "subnet" {
-  name                 = "aula-subnet"
+  name                 = "student-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.1.0/24"]
 }
 
-# Cria IPs públicos
+# Public IP
 resource "azurerm_public_ip" "myPubIP" {
   count               = var.number_resources
-  name                = "myPublicIP-${count.index + 1}"
+  name                = "student-pip-${count.index + 1}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Dynamic"
 }
 
-# Cria SG e uma regra de SSH
+# Network Security Group (NSG)
 resource "azurerm_network_security_group" "nsg" {
-  name                = "myNetworkSecurityGroup"
+  name                = "student-nsg"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
+
   security_rule {
     name                       = "SSH"
     priority                   = 1001
@@ -60,79 +60,48 @@ resource "azurerm_network_security_group" "nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-
 }
 
-resource "azurerm_network_security_group" "my_nsg" {
-  name                = "myNSG"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-}
-
-# Cria NIC
+# Network Interface (NIC)
 resource "azurerm_network_interface" "nic" {
   count               = var.number_resources
-  name                = "myNIC-${count.index + 1}"
+  name                = "student-nic-${count.index + 1}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
-    name                          = "nic_${count.index + 1}_configuration"
+    name                          = "nic-${count.index + 1}-config"
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.myPubIP[count.index].id
   }
 }
 
-# Conecta SG com nic
+# Associate NSG with NIC
 resource "azurerm_network_interface_security_group_association" "nicNSG" {
   count                     = var.number_resources
   network_interface_id      = azurerm_network_interface.nic[count.index].id
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
-# Cria nome genérico para a chave SSH
-resource "random_pet" "ssh_key_name" {
-  prefix    = "ssh"
-  separator = ""
+# SSH Key Generation
+resource "random_password" "vm_admin_password" {
+  length           = 16
+  special          = true
+  override_special = "_%@"
 }
 
-# Gera uma chave pública e uma privada
-resource "azapi_resource_action" "ssh_public_key_gen" {
-  type        = "Microsoft.Compute/sshPublicKeys@2022-11-01"
-  resource_id = azapi_resource.ssh_public_key.id
-  action      = "generateKeyPair"
-  method      = "POST"
-
-  response_export_values = ["publicKey", "privateKey"]
-}
-
-# Associa o nome da chave criada aleatoriamente com a chave pública
-resource "azapi_resource" "ssh_public_key" {
-  type      = "Microsoft.Compute/sshPublicKeys@2022-11-01"
-  name      = random_pet.ssh_key_name.id
-  location  = azurerm_resource_group.rg.location
-  parent_id = azurerm_resource_group.rg.id
-}
-
-# Salva a chave privada no diretório principal
-resource "local_file" "private_key" {
-  content         = azapi_resource_action.ssh_public_key_gen.output.privateKey
-  filename        = "private_key.pem"
-  file_permission = "0600"
-}
-
-# Cria a máquina virtual
+# Virtual Machine (VM)
 resource "azurerm_linux_virtual_machine" "myVM" {
   count                 = var.number_resources
-  name                  = "myVM-${count.index + 1}"
+  name                  = "student-vm-${count.index + 1}"
   location              = azurerm_resource_group.rg.location
   resource_group_name   = azurerm_resource_group.rg.name
   network_interface_ids = [azurerm_network_interface.nic[count.index].id]
-  size                  = "Standard_DS1_v2"
+  size                  = "Standard_B1s"
 
   os_disk {
-    name                 = "myOsDisk${count.index + 1}"
+    name                 = "student-osdisk-${count.index + 1}"
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
@@ -144,26 +113,23 @@ resource "azurerm_linux_virtual_machine" "myVM" {
     version   = "latest"
   }
 
-  computer_name  = "myVM-${count.index + 1}"
+  computer_name  = "student-vm-${count.index + 1}"
   admin_username = var.username
+  admin_password = random_password.vm_admin_password.result
 
   admin_ssh_key {
     username   = var.username
     public_key = azapi_resource_action.ssh_public_key_gen.output.publicKey
   }
 
-  admin_password = var.vm_admin_password  # Adicionando a senha da VM
-
   depends_on = [azurerm_network_interface_security_group_association.nicNSG]
 }
 
-# Gerar um inventário das VMs
+# Generate Ansible Inventory
 resource "local_file" "hosts_cfg" {
-  content = templatefile("inventory.tpl",
-    {
-      vms      = azurerm_linux_virtual_machine.myVM
-      username = var.username
-    }
-  )
+  content = templatefile("inventory.tpl", {
+    vms      = azurerm_linux_virtual_machine.myVM
+    username = var.username
+  })
   filename = "./ansible/inventory.yml"
 }
