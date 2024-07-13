@@ -24,5 +24,6 @@ variable "number_resources" {
 
 variable "admin_password" {
   description = "Password for the admin user on the virtual machine"
-  # default     = "senha_default"  # Defina um valor padrão apenas se necessário
+  type        = string
+  default     = ""
 }
