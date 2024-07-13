@@ -48,8 +48,8 @@ jobs:
 
       - name: Verificar e Exibir Conteúdo do Inventário
         run: |
-          if [ -f ansible/inventory.ini ]; then
-            cat ansible/inventory.ini
+          if [ -f inventory.ini ]; then
+            cat inventory.ini
           else
             echo "Arquivo de inventário não encontrado!"
             exit 1
@@ -57,6 +57,6 @@ jobs:
 
       - name: Executar playbook do Ansible
         run: |
-          ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
+          ansible-playbook -i inventory.ini ansible/playbook.yml
         env:
           VM_ADMIN_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
