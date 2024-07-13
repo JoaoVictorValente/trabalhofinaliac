@@ -53,6 +53,14 @@ jobs:
       - name: Instalar Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Reconfigurar Backend do Terraform
+        run: terraform init -reconfigure
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
       - name: Forçar Desbloqueio do Estado
         run: terraform force-unlock 70331a1f-e4ba-b50c-b659-6037b2c88063
         # Substitua '70331a1f-e4ba-b50c-b659-6037b2c88063' pelo seu ID de bloqueio
