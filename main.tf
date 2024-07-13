@@ -117,7 +117,7 @@ resource "azurerm_linux_virtual_machine" "myVM" {
 
   admin_ssh_key {
     username   = var.username
-    public_key = azapi_resource_action.ssh_public_key_gen.output.publicKey
+    # public_key = random_password.vm_admin_password.result
   }
 
   depends_on = [azurerm_network_interface_security_group_association.nicNSG]
@@ -131,4 +131,3 @@ resource "local_file" "hosts_cfg" {
   })
   filename = "./ansible/inventory.yml"
 }
-
