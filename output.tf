@@ -24,7 +24,3 @@ output "ssh_private_key" {
   sensitive = true
 }
 
-# Output Public IP
-output "public_ip" {
-  value = azurerm_public_ip.myPubIP[*].ip_address
-}
