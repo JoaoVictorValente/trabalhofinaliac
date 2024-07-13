@@ -46,8 +46,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ansible
 
-      - name: Exibir conteúdo de inventory.ini
-        run: cat ansible/inventory.ini
+      - name: Verificar e Exibir Conteúdo do Inventário
+        run: |
+          if [ -f ansible/inventory.ini ]; then
+            cat ansible/inventory.ini
+          else
+            echo "Arquivo de inventário não encontrado!"
+            exit 1
+          fi
 
       - name: Executar playbook do Ansible
         run: |
