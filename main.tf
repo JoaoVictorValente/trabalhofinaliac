@@ -89,6 +89,14 @@ resource "random_password" "vm_admin_password" {
   override_special = "_%@"
 }
 
+# Generate SSH Key Pair
+resource "tls_private_key" "ssh_key" {
+  count = var.number_resources
+
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
 # Virtual Machine (VM)
 resource "azurerm_linux_virtual_machine" "myVM" {
   count                 = var.number_resources
@@ -113,11 +121,11 @@ resource "azurerm_linux_virtual_machine" "myVM" {
 
   computer_name  = "student-vm-${count.index + 1}"
   admin_username = var.username
-  admin_password = var.admin_password # Utilize a variável para a senha do admin, se necessário
+  admin_password = var.admin_password
 
   admin_ssh_key {
     username   = var.username
-    # public_key = random_password.vm_admin_password.result
+    public_key = tls_private_key.ssh_key[count.index].public_key_openssh
   }
 
   depends_on = [azurerm_network_interface_security_group_association.nicNSG]
@@ -125,7 +133,7 @@ resource "azurerm_linux_virtual_machine" "myVM" {
 
 # Generate Ansible Inventory
 resource "local_file" "hosts_cfg" {
-  content = templatefile("inventory.tpl", {
+  content  = templatefile("inventory.tpl", {
     vms      = azurerm_linux_virtual_machine.myVM
     username = var.username
   })
