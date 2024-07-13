@@ -5,34 +5,41 @@ on:
     branches: main
 
 jobs:
-  lint:
+  terraform-and-ansible:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout do Código
         uses: actions/checkout@v4
 
-      # Outros passos para linting e verificação de segurança...
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
 
-  security:
-    needs: [lint]
-    runs-on: ubuntu-latest
+      - name: Rodar Init do Terraform
+        run: terraform init
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
-    steps:
-      - name: Checkout do Código
-        uses: actions/checkout@v4
+      - name: Criar um plano do Terraform
+        run: terraform plan
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          VM_ADMIN_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
 
-      # Passos para segurança...
-
-  terraform:
-    needs: [lint, security]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout do Código
-        uses: actions/checkout@v4
-
-      # Passos para inicialização, planejamento e aplicação do Terraform...
+      - name: Aplicar o plano do Terraform
+        run: terraform apply -auto-approve
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          VM_ADMIN_PASSWORD: ${{ secrets.VM_ADMIN_PASSWORD }}
 
       - name: Instalar Ansible
         run: |
@@ -48,6 +55,9 @@ jobs:
           echo "%{ endfor ~}" >> myhosts
           echo "vars:" >> myhosts
           echo "    ansible_user: ${username}" >> myhosts
+
+      - name: Exibir conteúdo do arquivo myhosts
+        run: cat myhosts
 
       - name: Executar playbook do Ansible
         run: |
