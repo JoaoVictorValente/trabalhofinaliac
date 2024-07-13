@@ -1,5 +1,11 @@
 # Arquivo main.tf
 
+# Declare a variável para a senha do admin
+variable "admin_password" {
+  description = "Password for the admin user on the virtual machine"
+  default     = "${{ secrets.VM_ADMIN_PASSWORD }}"  # Acesso à variável secreta do GitHub
+}
+
 # Resource Group
 resource "azurerm_resource_group" "rg" {
   name     = "student-rg"
@@ -115,11 +121,11 @@ resource "azurerm_linux_virtual_machine" "myVM" {
 
   computer_name  = "student-vm-${count.index + 1}"
   admin_username = var.username
-  admin_password = var.admin_password # Usar variável para a senha do admin
+  admin_password = var.admin_password  # Usar variável para a senha do admin
 
   admin_ssh_key {
     username   = var.username
-    public_key = file("${path.module}/id_rsa.pub")
+    public_key = azapi_resource_action.ssh_public_key_gen.output.publicKey
   }
 
   depends_on = [azurerm_network_interface_security_group_association.nicNSG]
