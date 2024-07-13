@@ -84,15 +84,6 @@ resource "azurerm_network_interface_security_group_association" "nicNSG" {
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
-# SSH Key Generation (Exemplo básico)
-resource "null_resource" "ssh_key_gen" {
-  provisioner "local-exec" {
-    command = <<EOT
-      ssh-keygen -t rsa -b 4096 -f ./id_rsa -N ''
-    EOT
-  }
-}
-
 # Virtual Machine (VM)
 resource "azurerm_linux_virtual_machine" "myVM" {
   count                 = var.number_resources
@@ -117,7 +108,7 @@ resource "azurerm_linux_virtual_machine" "myVM" {
 
   computer_name  = "student-vm-${count.index + 1}"
   admin_username = var.username
-  admin_password = random_password.vm_admin_password.result
+  admin_password = var.admin_password  # Usar variável para a senha do admin
 
   admin_ssh_key {
     username   = var.username
